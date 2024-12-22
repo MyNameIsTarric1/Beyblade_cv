@@ -2,10 +2,9 @@ from filterpy.kalman import KalmanFilter
 import cv2
 import numpy as np
 import random
-import globals
 # Funzioni principali
 
-def calculate_dynamic_distance_threshold(detections):
+def calculate_dynamic_distance_threshold(detections, state):
 
     
     if len(detections) == 0:
@@ -21,12 +20,12 @@ def calculate_dynamic_distance_threshold(detections):
         widths.append(width)
         heights.append(height)
 
-    globals.w = np.mean(widths)
-    globals.h = np.mean(heights)
+    state.w = np.mean(widths)
+    state.h = np.mean(heights)
 
     # Soglia dinamica basata su larghezza media della bounding box
-    dynamic_threshold = 1.2 * globals.w  # Puoi aggiustare il fattore moltiplicativo
-    print(f"Threshold distanza calcolata dinamicamente: {dynamic_threshold:.2f} (Larghezza media: {w:.2f})")
+    dynamic_threshold = 1.2 * state.w  # Puoi aggiustare il fattore moltiplicativo
+    print(f"Threshold distanza calcolata dinamicamente: {dynamic_threshold:.2f} (Larghezza media: {state.w:.2f})")
     return dynamic_threshold
 
 def init_kalman():
@@ -84,7 +83,7 @@ def generate_colors(num_colors):
     random.seed(42)  # Per risultati riproducibili
     return [(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)) for _ in range(num_colors)]
 
-def match_trackers_to_detections(trackers, detections, frame):
+def match_trackers_to_detections(trackers, detections, frame, state):
     new_trackers = {}
     used_detections = set()
 
@@ -121,12 +120,12 @@ def match_trackers_to_detections(trackers, detections, frame):
             new_trackers[tid] = tracker
         else:
             # Se il tracker non è stato trovato, salvalo in lost_trackers
-            lost_trackers[tid] = tracker
+            state.lost_trackers[tid] = tracker
 
     # Aggiungi nuovi tracker dai lost_trackers se sono stati riacquisiti
     next_id = len(new_trackers)
     for i, box_conf in enumerate(detections):
-        if i not in used_detections and len(new_trackers) < N_BEYBLADE:
+        if i not in used_detections and len(new_trackers) < state.N_BEYBLADE:
             box = list(map(int, box_conf[:4]))
             center = compute_center(box)
             avg_color = calculate_average_color(frame, box)
@@ -134,11 +133,11 @@ def match_trackers_to_detections(trackers, detections, frame):
             kf.x[:2] = center
 
             # Se il tracker è stato perso e poi riacquisito, recupera l'HP
-            if next_id in lost_trackers:
-                hp = lost_trackers[next_id]['hp']  # Ripristina HP precedente
-                del lost_trackers[next_id]  # Rimuovi dai lost_trackers
+            if next_id in state.lost_trackers:
+                hp = state.lost_trackers[next_id]['hp']  # Ripristina HP precedente
+                del state.lost_trackers[next_id]  # Rimuovi dai lost_trackers
             else:
-                hp = MAX_HP  # Nuovo tracker, quindi inizia da MAX_HP
+                hp = state.MAX_HP  # Nuovo tracker, quindi inizia da MAX_HP
 
             new_trackers[next_id] = {
                 'kf': kf,

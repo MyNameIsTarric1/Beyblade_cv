@@ -1,6 +1,5 @@
 from utils import init_kalman, compute_center, calculate_iou, calculate_average_color, color_distance
 import numpy as np
-import config
 def calculate_matching_score(box, tracker, frame):
     """
     Calcola il punteggio di corrispondenza tra una detection e un tracker esistente.
@@ -55,14 +54,14 @@ def match_existing_trackers(trackers, detections, frame, used_detections):
     return new_trackers, lost_trackers
 
 
-def add_new_trackers(new_trackers, lost_trackers, detections, frame, used_detections, max_trackers):
+def add_new_trackers(new_trackers, lost_trackers, detections, frame, used_detections, state):
     """
     Aggiunge nuovi tracker per le detection non assegnate o riacquisisce tracker persi.
     """
     next_id = len(new_trackers)
 
     for i, box_conf in enumerate(detections):
-        if i not in used_detections and len(new_trackers) < max_trackers:
+        if i not in used_detections and len(new_trackers) < state.N_BEYBLADE:
             box = list(map(int, box_conf[:4]))
             center = compute_center(box)
             avg_color = calculate_average_color(frame, box)
@@ -74,7 +73,7 @@ def add_new_trackers(new_trackers, lost_trackers, detections, frame, used_detect
                 hp = lost_trackers[next_id]['hp']
                 del lost_trackers[next_id]
             else:
-                hp = config.MAX_HP  # Nuovo tracker con HP iniziale
+                hp = state.MAX_HP  # Nuovo tracker con HP iniziale
 
             # Aggiungi il nuovo tracker
             new_trackers[next_id] = {
@@ -91,7 +90,7 @@ def add_new_trackers(new_trackers, lost_trackers, detections, frame, used_detect
     return new_trackers
 
 
-def match_trackers_to_detections(trackers, detections, frame):
+def match_trackers_to_detections(trackers, detections, frame,state):
     """
     Aggiorna i tracker esistenti con le nuove detection e aggiunge nuovi tracker se necessario.
     """
@@ -101,6 +100,6 @@ def match_trackers_to_detections(trackers, detections, frame):
     new_trackers, lost_trackers = match_existing_trackers(trackers, detections, frame, used_detections)
 
     # Aggiunta di nuovi tracker
-    new_trackers = add_new_trackers(new_trackers, lost_trackers, detections, frame, used_detections, config.N_BEYBLADE)
+    new_trackers = add_new_trackers(new_trackers, lost_trackers, detections, frame, used_detections, state)
 
     return new_trackers

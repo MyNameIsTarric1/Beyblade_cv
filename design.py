@@ -1,21 +1,15 @@
-import numpy as np
 import cv2
-import globals
-
-
-def load_png(png_path):
-    return cv2.imread(png_path, cv2.IMREAD_UNCHANGED)  # Carica immagine con canale alfa
 
 # Funzione per disegnare l'effetto collisione
-def draw_collision_effect(frame, tracker1, tracker2, explosion_img):
+def draw_collision_effect(frame, tracker1, tracker2, state):
     # Calcola il centro della collisione
     box1, box2 = tracker1['box'], tracker2['box']
     center_x = (max(box1[0], box2[0]) + min(box1[2], box2[2])) // 2
     center_y = (max(box1[1], box2[1]) + min(box1[3], box2[3])) // 2
 
     # Dimensione fissa dell'esplosione (ridimensiona solo se serve)
-    explosion_size = (int(globals.w/1) , int(globals.h/1))
-    resized_explosion = cv2.resize(explosion_img, explosion_size)
+    explosion_size = (int(state.w/1) , int(state.h/1))
+    resized_explosion = cv2.resize(state.explosion_img, explosion_size)
 
     # Posiziona l'esplosione centrata
     top_left_x = center_x - explosion_size[0] // 2
@@ -44,11 +38,11 @@ def overlay_image(img, overlay, position):
                                 alpha_inv * img[y1:y2, x1:x2, c])
 
 # Funzione per sovrapporre l'immagine della scintilla
-def overlay_spark_image(frame, spark_image, position, alpha=1.0):
+def overlay_spark_image(frame, position, alpha, state):
     """
     Sovrappone un'immagine di scintilla sulla scena con un certo grado di trasparenza.
     """
-    spark_image = cv2.resize(spark_image, (int(globals.w/4) , int(globals.h/4)))
+    spark_image = cv2.resize(state.spark_image, (int(state.w/4) , int(state.h/4)))
 
     # Separa i canali RGBA dell'immagine della scintilla
     spark_bgra = spark_image

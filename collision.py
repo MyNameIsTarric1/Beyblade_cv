@@ -1,8 +1,6 @@
-import config
 import numpy as np
-import globals
 from utils import enlarge_box, compute_center, calculate_iou
-def check_collision(tracker1, tracker2, i, j):
+def check_collision(tracker1, tracker2, i, j,state):
     """
     Controlla se due tracker stanno collidendo basandosi su IoU, distanza e deviazione.
     Aggiorna le variabili globali se viene rilevata una collisione.
@@ -11,13 +9,13 @@ def check_collision(tracker1, tracker2, i, j):
     pair = tuple(sorted((i, j)))
 
     # Evita rilevazioni multiple consecutive usando il cooldown
-    if globals.collision_cooldown.get(pair, 0) > 0:
-        globals.collision_cooldown[pair] -= 1
+    if state.collision_cooldown.get(pair, 0) > 0:
+        state.collision_cooldown[pair] -= 1
         return False
 
     # Ingrandisci le bounding box
-    enlarged_box1 = enlarge_box(tracker1['box'], config.BOX_SCALE_FACTOR)
-    enlarged_box2 = enlarge_box(tracker2['box'], config.BOX_SCALE_FACTOR)
+    enlarged_box1 = enlarge_box(tracker1['box'], state.BOX_SCALE_FACTOR)
+    enlarged_box2 = enlarge_box(tracker2['box'], state.BOX_SCALE_FACTOR)
 
     # Calcola IoU, distanza e deviazione
     iou = calculate_iou(enlarged_box1, enlarged_box2)
@@ -29,11 +27,11 @@ def check_collision(tracker1, tracker2, i, j):
     log_collision_debug(i, j, center1_observed, center2_observed, deviation1, deviation2, iou, distance)
 
     # Controllo delle condizioni di collisione
-    if is_collision(iou, distance, deviation1, deviation2):
-        handle_collision(tracker1, tracker2, i, j, pair)
+    if is_collision(iou, distance, deviation1, deviation2,state):
+        handle_collision(tracker1, tracker2, i, j, pair,state)
         return True
 
-    globals.iou_non_zero_status[pair] = False
+    state.iou_non_zero_status[pair] = False
     return False
 
 
@@ -56,35 +54,35 @@ def log_collision_debug(i, j, center1, center2, deviation1, deviation2, iou, dis
     print(f"IoU: {iou}, Distance: {distance}")
 
 
-def is_collision(iou, distance, deviation1, deviation2):
+def is_collision(iou, distance, deviation1, deviation2,state):
     """
     Determina se una collisione è avvenuta basandosi su soglie predefinite.
     """
     return (
-        iou > config.THRESHOLD_IOU and
-        distance < config.THRESHOLD_DISTANCE and
-        (deviation1 > config.THRESHOLD_DEVIATION or deviation2 > config.THRESHOLD_DEVIATION)
+        iou > state.THRESHOLD_IOU and
+        distance < state.THRESHOLD_DISTANCE and
+        (deviation1 > state.THRESHOLD_DEVIATION or deviation2 > state.THRESHOLD_DEVIATION)
     )
 
 
-def handle_collision(tracker1, tracker2, i, j, pair):
+def handle_collision(tracker1, tracker2, i, j, pair, state):
     """
     Gestisce una collisione tra due tracker, aggiornando le variabili globali e applicando gli effetti.
     """
 
-    if not globals.iou_non_zero_status.get(pair, False):
-        globals.collisions += 1
-        globals.collision_cooldown[pair] = config.COOLDOWN_FRAMES
-        globals.explosion_cooldown[pair] = config.EXPLOSION_DURATION
-        globals.iou_non_zero_status[pair] = True
-        globals.collision_color_cooldown[i] = config.COLLISION_COLOR_DURATION
-        globals.collision_color_cooldown[j] = config.COLLISION_COLOR_DURATION
+    if not state.iou_non_zero_status.get(pair, False):
+        state.collisions += 1
+        state.collision_cooldown[pair] = state.COOLDOWN_FRAMES
+        state.explosion_cooldown[pair] = state.EXPLOSION_DURATION
+        state.iou_non_zero_status[pair] = True
+        state.collision_color_cooldown[i] = state.COLLISION_COLOR_DURATION
+        state.collision_color_cooldown[j] = state.COLLISION_COLOR_DURATION
 
         # Aggiorna HP dei tracker in base alle velocità relative
-        update_tracker_hp(tracker1, tracker2)
+        update_tracker_hp(tracker1, tracker2, state)
 
 
-def update_tracker_hp(tracker1, tracker2):
+def update_tracker_hp(tracker1, tracker2, state):
     """
     Aggiorna gli HP dei tracker in base alle loro velocità relative.
     """
@@ -93,5 +91,5 @@ def update_tracker_hp(tracker1, tracker2):
     total_velocity = velocity1 + velocity2
 
     if total_velocity > 0:
-        tracker1['hp'] -= int((velocity2 / total_velocity) * config.COLLISION_DAMAGE)
-        tracker2['hp'] -= int((velocity1 / total_velocity) * config.COLLISION_DAMAGE)
+        tracker1['hp'] -= int((velocity2 / total_velocity) * state.COLLISION_DAMAGE)
+        tracker2['hp'] -= int((velocity1 / total_velocity) * state.COLLISION_DAMAGE)
