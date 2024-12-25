@@ -73,7 +73,13 @@ def simulate_game():
         draw_health_bar_with_label(frame, hp_beyblade2, max_hp, beyblade2_bar_pos[0], beyblade2_bar_pos[1], 
                                    bar_width, bar_height, "Player 2", color_bg, color_text)
 
-       
+        # Simula una collisione (ad esempio ogni 30 frame)
+        if cv2.waitKey(100) & 0xFF == ord('c'):  # Premi 'c' per simulare una collisione
+            if hp_beyblade1 > 0:
+                hp_beyblade1 = max(hp_beyblade1 - v1, 0)  # Sottrai vita alla trottola 1
+            if hp_beyblade2 > 0:
+                hp_beyblade2 = max(hp_beyblade2 - v1, 0)  # Sottrai vita alla trottola 2
+
         # Mostra il frame aggiornato
         cv2.imshow("Game Simulation", frame)
 
