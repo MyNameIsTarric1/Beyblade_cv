@@ -4,7 +4,7 @@ import numpy as np
 from filterpy.kalman import KalmanFilter
 from ultralytics import YOLO
 import random
-from design import calculate_dynamic_distance_threshold
+
 
 def calculate_dynamic_distance_threshold(detections):
 
@@ -37,8 +37,8 @@ def load_png(png_path):
     return cv2.imread(png_path, cv2.IMREAD_UNCHANGED)  # Carica immagine con canale alfa
 
 # Carica l'immagine dell'esplosione
-explosion_img = load_png("580b585b2edbce24c47b26da-147539564.png")
-spark_image = load_png("pngtree-splash-spark-line-light-effect-png-image_6300255.png")  # Immagine PNG con trasparenza
+explosion_img = load_png(".././data/coll.png")
+spark_image = load_png(".././data/spark.png")  # Immagine PNG con trasparenza
 
 # Funzione per disegnare l'effetto collisione
 def draw_collision_effect(frame, tracker1, tracker2):
@@ -70,7 +70,7 @@ HP_DECAY = 1
 COLLISION_DAMAGE = 10
 
 # Carica il modello YOLO
-model = YOLO('last.pt')
+model = YOLO('.././data/last.pt')
 
 # Carica il video
 video_path = 'videoB.mp4'
