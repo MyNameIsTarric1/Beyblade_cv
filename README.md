@@ -70,7 +70,3 @@ This repository contains the implementation of a system that detects spinning Be
 - [Andrea Belli Contarini](https://github.com/andrea-bellicontarini)
 - [Alessandro Ciorra](https://github.com/alessandro-ciorra)
 - [Andrea Tarricone](https://github.com/MyNameIsTarric1)
-
-
-## License
-This project is open-source under the [MIT License](LICENSE).
