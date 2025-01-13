@@ -1,7 +1,3 @@
-Here's a draft for the README file for your GitHub project:
-
----
-
 # Beyblade Detection & Tracking System
 
 Welcome to the Beyblade Detection & Tracking repository! This project leverages advanced Computer Vision techniques to detect, track, and analyze Beyblade spinning tops, including collision detection.
@@ -70,8 +66,6 @@ This repository contains the implementation of a system that detects spinning Be
    [Colab Link](https://colab.research.google.com/drive/198SISJwn60p8h-UMt8uNjTf3GRu2wmUw#scrollTo=yVI7j5xc39Io)
 
 ## Contributors
-
-We would like to thank everyone who contributed to this project:
 
 - [Andrea Belli Contarini](https://github.com/andrea-bellicontarini)
 - [Alessandro Ciorra](https://github.com/alessandro-ciorra)
