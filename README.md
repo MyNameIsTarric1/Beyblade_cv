@@ -68,5 +68,5 @@ This repository contains the implementation of a system that detects spinning Be
 ## Contributors
 
 - [Andrea Belli Contarini](https://github.com/andrea-bellicontarini)
-- [Alessandro Ciorra](https://github.com/alessandro-ciorra)
+- [Alessandro Ciorra](https://github.com/Chrodinger)
 - [Andrea Tarricone](https://github.com/MyNameIsTarric1)
